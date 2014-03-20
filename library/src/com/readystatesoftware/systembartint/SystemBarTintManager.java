@@ -339,6 +339,7 @@ public class SystemBarTintManager {
         private static final String NAV_BAR_WIDTH_RES_NAME = "navigation_bar_width";
         private static final String SHOW_NAV_BAR_RES_NAME = "config_showNavigationBar";
 
+        private final Activity mActivity;
         private final boolean mTranslucentStatusBar;
         private final boolean mTranslucentNavBar;
         private final int mStatusBarHeight;
@@ -346,20 +347,22 @@ public class SystemBarTintManager {
         private final boolean mHasNavigationBar;
         private final int mNavigationBarHeight;
         private final int mNavigationBarWidth;
-        private final boolean mInPortrait;
         private final float mSmallestWidthDp;
 
         private SystemBarConfig(Activity activity, boolean translucentStatusBar, boolean traslucentNavBar) {
-            Resources res = activity.getResources();
-            mInPortrait = (res.getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT);
+            mActivity = activity;
             mSmallestWidthDp = getSmallestWidthDp(activity);
-            mStatusBarHeight = getInternalDimensionSize(res, STATUS_BAR_HEIGHT_RES_NAME);
+            mStatusBarHeight = getInternalDimensionSize(activity.getResources(), STATUS_BAR_HEIGHT_RES_NAME);
             mActionBarHeight = getActionBarHeight(activity);
             mNavigationBarHeight = getNavigationBarHeight(activity);
             mNavigationBarWidth = getNavigationBarWidth(activity);
             mHasNavigationBar = (mNavigationBarHeight > 0);
             mTranslucentStatusBar = translucentStatusBar;
             mTranslucentNavBar = traslucentNavBar;
+        }
+
+        private boolean inPortrait() {
+            return mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
         }
 
         @TargetApi(14)
@@ -380,7 +383,7 @@ public class SystemBarTintManager {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                 if (getInternalBoolean(res, SHOW_NAV_BAR_RES_NAME)) {
                     String key;
-                    if (mInPortrait) {
+                    if (inPortrait()) {
                         key = NAV_BAR_HEIGHT_RES_NAME;
                     } else {
                         key = NAV_BAR_HEIGHT_LANDSCAPE_RES_NAME;
@@ -439,7 +442,7 @@ public class SystemBarTintManager {
          * @return True if navigation should appear at the bottom of the screen, False otherwise.
          */
         public boolean isNavigationAtBottom() {
-            return (mSmallestWidthDp >= 600 || mInPortrait);
+            return (mSmallestWidthDp >= 600 || inPortrait());
         }
 
         /**
